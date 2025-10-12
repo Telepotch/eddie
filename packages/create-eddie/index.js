@@ -30,6 +30,7 @@ function createEddieProject(projectName) {
     'edit/2.sampling✂️',
     'edit/3.plot📋',
     'edit/4.publish📚',
+    'edit/4.publish📚/.vitepress/theme',
     'edit/archive🗑️',
     '.system/site-config',
     '.system/claude',
@@ -89,222 +90,30 @@ function createEddieProject(projectName) {
     'OPENAI_API_KEY=your_openai_api_key_here\n'
   );
 
-  // Create VitePress config
+  // Copy VitePress config from template
   console.log('⚙️  Creating VitePress config...');
-  const vitepressConfig = `import { defineConfig } from 'vitepress'
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+  const configTemplatePath = path.join(__dirname, 'templates/config.js');
+  let configContent = fs.readFileSync(configTemplatePath, 'utf-8');
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+  // Replace PROJECT_NAME placeholder
+  configContent = configContent.replace(/PROJECT_NAME/g, projectName);
 
-// Load sidebar from generated sidebar.json
-let sidebar = 'auto'
-const sidebarPath = path.join(__dirname, 'sidebar.json')
-if (fs.existsSync(sidebarPath)) {
-  sidebar = JSON.parse(fs.readFileSync(sidebarPath, 'utf-8'))
-}
-
-export default defineConfig({
-  title: '${projectName}',
-  description: 'Documentation powered by Eddie',
-
-  appearance: 'light', // Force light mode
-  ignoreDeadLinks: true,
-
-  markdown: {
-    // Pre-process markdown to convert Obsidian hybrid links
-    // [[text]](link) -> [text](link)
-    async: true,
-
-    config: (md) => {
-      // Store original render method
-      const originalRender = md.render.bind(md)
-
-      // Override render to pre-process content
-      md.render = function(src, env) {
-        // Convert [[text]](link) to [text](link)
-        const processed = src.replace(/\\[\\[([^\\]]+)\\]\\]\\(([^)]+)\\)/g, '[$1]($2)')
-        return originalRender(processed, env)
-      }
-
-      // Enable mermaid diagrams
-      const defaultFence = md.renderer.rules.fence
-      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
-        const token = tokens[idx]
-        const code = token.content.trim()
-        const info = token.info ? md.utils.unescapeAll(token.info).trim() : ''
-
-        if (info === 'mermaid') {
-          return \`<div class="mermaid">\${code}</div>\`
-        }
-        return defaultFence ? defaultFence(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options)
-      }
-
-      // Convert pure Obsidian wikilinks to markdown links
-      // [[Page]] -> [Page](./Page.md)
-      // [[Page|Display]] -> [Display](./Page.md)
-      // [[Page#heading]] -> [Page](./Page.md#heading)
-      md.inline.ruler.before('link', 'wikilink', (state, silent) => {
-        const start = state.pos
-        const max = state.posMax
-
-        // Check for [[
-        if (state.src.charCodeAt(start) !== 0x5B || state.src.charCodeAt(start + 1) !== 0x5B) {
-          return false
-        }
-
-        // Find ]]
-        let end = start + 2
-        while (end < max) {
-          if (state.src.charCodeAt(end) === 0x5D && state.src.charCodeAt(end + 1) === 0x5D) {
-            break
-          }
-          end++
-        }
-
-        if (end >= max) {
-          return false
-        }
-
-        const content = state.src.slice(start + 2, end)
-
-        // Parse [[Page|Display]] or [[Page#heading]] or [[Page]]
-        let page = content
-        let display = content
-        let heading = ''
-
-        if (content.includes('|')) {
-          const parts = content.split('|')
-          page = parts[0]
-          display = parts[1]
-        }
-
-        if (page.includes('#')) {
-          const parts = page.split('#')
-          page = parts[0]
-          heading = '#' + parts[1]
-        }
-
-        if (!silent) {
-          const token = state.push('link_open', 'a', 1)
-          token.attrSet('href', './' + page + '.md' + heading)
-
-          const textToken = state.push('text', '', 0)
-          textToken.content = display
-
-          state.push('link_close', 'a', -1)
-        }
-
-        state.pos = end + 2
-        return true
-      })
-    }
-  },
-
-  themeConfig: {
-    sidebar,
-
-    search: {
-      provider: 'local'
-    }
-  },
-
-  head: [
-    // Load mermaid from CDN
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js' }],
-    ['script', {}, 'mermaid.initialize({ startOnLoad: true });'],
-
-    // Hide theme switcher and add download button
-    ['style', {}, \\\`
-      .VPSwitchAppearance { display: none !important; }
-
-      .download-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 5px 10px;
-        font-size: 13px;
-        font-weight: 500;
-        border: 1px solid var(--vp-c-divider);
-        border-radius: 6px;
-        background: var(--vp-c-bg);
-        color: var(--vp-c-text-1);
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-left: 8px;
-      }
-      .download-button:hover {
-        border-color: var(--vp-c-brand-1);
-        color: var(--vp-c-brand-1);
-        background: var(--vp-c-bg-soft);
-      }
-      .download-button svg {
-        width: 14px;
-        height: 14px;
-        flex-shrink: 0;
-      }
-    \\\`],
-
-    // Download button script
-    ['script', {}, \\\`
-      if (typeof window !== 'undefined') {
-        const insertDownloadButton = () => {
-          const navBarExtra = document.querySelector('.VPNavBarExtra');
-          if (!navBarExtra || document.querySelector('.download-button')) return;
-
-          const btn = document.createElement('button');
-          btn.className = 'download-button';
-          btn.innerHTML = \\\\\\\`
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <span>MD</span>
-          \\\\\\\`;
-
-          btn.onclick = async () => {
-            try {
-              const path = window.location.pathname;
-              let mdPath = path.endsWith('/') ? path + 'index.md' : path + '.md';
-
-              const response = await fetch(mdPath);
-              if (!response.ok) throw new Error('File not found');
-
-              const markdown = await response.text();
-              const fileName = mdPath.split('/').pop();
-
-              const blob = new Blob([markdown], { type: 'text/markdown' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = fileName;
-              a.click();
-              URL.revokeObjectURL(url);
-            } catch (error) {
-              console.error('Download failed:', error);
-              alert('ダウンロードに失敗しました');
-            }
-          };
-
-          navBarExtra.appendChild(btn);
-        };
-
-        window.addEventListener('load', insertDownloadButton);
-
-        // For SPA navigation
-        const observer = new MutationObserver(insertDownloadButton);
-        window.addEventListener('load', () => {
-          observer.observe(document.body, { childList: true, subtree: true });
-        });
-      }
-    \\\`]
-  ]
-})
-`;
   fs.writeFileSync(
     path.join(projectDir, '.system/site-config/config.js'),
-    vitepressConfig
+    configContent
+  );
+
+  // Copy theme files
+  console.log('🎨 Creating theme files...');
+  const themeIndexPath = path.join(__dirname, 'templates/theme-index.js');
+  const customCssPath = path.join(__dirname, 'templates/custom.css');
+  fs.copyFileSync(
+    themeIndexPath,
+    path.join(projectDir, 'edit/4.publish📚/.vitepress/theme/index.js')
+  );
+  fs.copyFileSync(
+    customCssPath,
+    path.join(projectDir, 'edit/4.publish📚/.vitepress/theme/custom.css')
   );
 
   // Copy generate-sidebar.js
@@ -336,7 +145,6 @@ export default defineConfig({
   );
 
   // Create VitePress config symlink
-  fs.mkdirSync(path.join(projectDir, 'edit/4.publish📚/.vitepress'), { recursive: true });
   const configSymlink = path.join(projectDir, 'edit/4.publish📚/.vitepress/config.js');
   const configTarget = '../../../.system/site-config/config.js';
   fs.symlinkSync(configTarget, configSymlink);

@@ -1,0 +1,168 @@
+/* ===== Eddie Essential Customizations ===== */
+
+/* Brand color override - Apple System Blue */
+:root {
+  --vp-c-brand-1: #007AFF;
+  --vp-c-brand-2: #4DA2FF;
+  --vp-c-brand-3: #80BFFF;
+  --vp-c-brand-soft: rgba(0, 122, 255, 0.14);
+}
+
+/* Hide theme switcher (light mode only) */
+.VPSwitchAppearance {
+  display: none !important;
+}
+
+/* Hide hamburger menu */
+.VPNavBarHamburger,
+.VPNavBarExtra {
+  display: none !important;
+}
+
+/* Hide ⌘K keyboard shortcut display */
+.DocSearch-Button-Keys,
+.VPNavBarSearch kbd {
+  display: none !important;
+}
+
+/* Search box - Wider */
+.VPNavBarSearch .DocSearch-Button {
+  width: 240px;
+}
+
+@media (min-width: 768px) {
+  .VPNavBarSearch .DocSearch-Button {
+    width: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .VPNavBarSearch .DocSearch-Button {
+    width: 400px;
+  }
+}
+
+/* Download button - Blue filled with white text */
+.download-button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  background: var(--vp-c-brand-1);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.25s;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 122, 255, 0.2);
+}
+
+.download-button:hover {
+  background: var(--vp-c-brand-2);
+  box-shadow: 0 4px 8px rgba(0, 122, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.download-button svg {
+  color: #ffffff;
+  transition: color 0.25s;
+}
+
+.download-button:hover svg {
+  color: #ffffff;
+}
+
+/* Mobile: icon only */
+@media (max-width: 768px) {
+  .download-button {
+    width: 36px;
+    padding: 0;
+  }
+
+  .download-text {
+    display: none;
+  }
+}
+
+/* Download menu dropdown */
+.download-menu {
+  position: fixed;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+  z-index: 1000;
+  min-width: 200px;
+}
+
+.download-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--vp-c-text-1);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  text-align: left;
+}
+
+.download-menu-item:hover {
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-brand-1);
+}
+
+.download-menu-item svg {
+  flex-shrink: 0;
+  color: var(--vp-c-text-2);
+  transition: color 0.2s;
+}
+
+.download-menu-item:hover svg {
+  color: var(--vp-c-brand-1);
+}
+
+/* ===== Nice Design Elements ===== */
+
+/* Navbar title - Bolder weight */
+.VPNavBarTitle .title {
+  font-weight: 700;
+}
+
+/* H1 - Blue gradient with bolder weight */
+.vp-doc h1 {
+  font-weight: 800;
+  background: linear-gradient(120deg, var(--vp-c-brand-1) 0%, var(--vp-c-brand-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Code blocks - Monochrome gray only */
+.vp-doc div[class*='language-'] code {
+  color: #24292e !important;
+}
+
+.vp-doc div[class*='language-'] .line span {
+  color: #24292e !important;
+}
+
+/* Bullet list markers - Blue */
+.vp-doc ul li::marker {
+  color: var(--vp-c-brand-1);
+}
+
+.vp-doc ol li::marker {
+  color: var(--vp-c-brand-1);
+  font-weight: 600;
+}
