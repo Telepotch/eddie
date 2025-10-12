@@ -77,15 +77,26 @@
   color: #ffffff;
 }
 
-/* Mobile: icon only */
+/* Mobile: icon only, closer spacing */
 @media (max-width: 768px) {
   .download-button {
     width: 36px;
     padding: 0;
+    margin-left: 8px !important;
   }
 
   .download-text {
     display: none;
+  }
+
+  /* Force navbar items to be close together */
+  .VPNavBar .content-body .content {
+    gap: 8px !important;
+  }
+
+  /* Remove any spacers between search and download */
+  .VPNavBarSearch + * {
+    margin-left: 0 !important;
   }
 }
 

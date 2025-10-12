@@ -22,12 +22,12 @@ export default {
 
         const btn = document.createElement('button')
         btn.className = 'download-button VPNavBarIconLink'
-        btn.setAttribute('aria-label', 'Download Markdown')
+        btn.setAttribute('aria-label', 'Download')
         btn.innerHTML = `
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px; flex-shrink: 0;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          <span class="download-text">Download Markdown</span>
+          <span class="download-text">Download</span>
         `
 
         btn.onclick = async () => {
@@ -37,34 +37,36 @@ export default {
           menu.innerHTML = `
             <button class="download-menu-item" data-action="current-md">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
-              <span>このページ (MD)</span>
+              <span>Markdown</span>
             </button>
             <button class="download-menu-item" data-action="current-pdf">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10h6M9 14h6"/>
               </svg>
-              <span>このページ (PDF)</span>
+              <span>PDF</span>
             </button>
             <button class="download-menu-item" data-action="current-docx">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6"/>
               </svg>
-              <span>このページ (Word)</span>
+              <span>Word</span>
             </button>
             <button class="download-menu-item" data-action="all">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
               </svg>
-              <span>全ページ (ZIP)</span>
+              <span>All Pages (Markdown ZIP)</span>
             </button>
           `
 
-          // Position menu below button
+          // Position menu below button (right-aligned to prevent cutoff)
           const rect = btn.getBoundingClientRect()
           menu.style.top = `${rect.bottom + 8}px`
-          menu.style.left = `${rect.left}px`
+          menu.style.right = `${window.innerWidth - rect.right}px`
           document.body.appendChild(menu)
 
           // Close menu on outside click
@@ -252,9 +254,16 @@ export default {
           }
         }
 
-        // Insert after the search container (as sibling)
-        searchContainer.parentElement.insertBefore(btn, searchContainer.nextSibling)
-        console.log('✅ Download button inserted after search container')
+        // Insert directly inside the navbar actions container
+        const navbarActions = document.querySelector('.VPNavBar .content-body .content')
+        if (navbarActions) {
+          navbarActions.appendChild(btn)
+          console.log('✅ Download button inserted into navbar actions')
+        } else {
+          // Fallback: insert after search container
+          searchContainer.parentElement.insertBefore(btn, searchContainer.nextSibling)
+          console.log('✅ Download button inserted after search container (fallback)')
+        }
       }
 
       // Initial insert
