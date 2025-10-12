@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(git:*)",
+      "Bash(vercel:*)",
+      "Bash(gh:*)",
+      "Read(//**)",
+      "Bash(eddie-search:*)",
+      "Bash(eddie-reindex:*)",
+      "Bash(node:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat .system/claude/EDDIE_GUIDE.md"
+          }
+        ]
+      }
+    ]
+  }
+}

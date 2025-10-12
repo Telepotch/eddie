@@ -1,0 +1,10 @@
+{
+  "groups": [
+    {
+      "text": "Getting Started",
+      "items": [
+        { "file": "index", "text": "Introduction" }
+      ]
+    }
+  ]
+}

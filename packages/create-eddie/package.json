@@ -1,0 +1,21 @@
+{
+  "name": "create-eddie",
+  "version": "1.2.0",
+  "type": "module",
+  "description": "Create Eddie documentation projects",
+  "bin": {
+    "create-eddie": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "create",
+    "eddie",
+    "documentation",
+    "obsidian",
+    "vitepress"
+  ],
+  "license": "MIT",
+  "dependencies": {}
+}

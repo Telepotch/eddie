@@ -1,0 +1,32 @@
+{
+  "name": "eddie-vector-search",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Semantic vector search for Eddie documentation projects",
+  "main": "./lib/index.js",
+  "bin": {
+    "eddie-search": "./bin/search.js",
+    "eddie-reindex": "./bin/reindex.js",
+    "eddie-check-index": "./bin/check-diff.js"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./vector-store": "./lib/vector-store.js",
+    "./project-root": "./lib/project-root.js"
+  },
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "vector-search",
+    "semantic-search",
+    "embeddings",
+    "documentation"
+  ],
+  "dependencies": {
+    "openai": "^4.0.0",
+    "glob": "^10.0.0"
+  },
+  "peerDependencies": {},
+  "license": "MIT"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "eddie-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered documentation framework for Obsidian + Claude Code",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces"
+  },
+  "keywords": [
+    "documentation",
+    "obsidian",
+    "claude-code",
+    "vitepress",
+    "vector-search"
+  ],
+  "author": "",
+  "license": "MIT"
+}
