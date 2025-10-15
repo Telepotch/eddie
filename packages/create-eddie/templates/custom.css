@@ -1,5 +1,14 @@
 /* ===== Eddie Essential Customizations ===== */
 
+/* Force light mode */
+html:not(.dark) {
+  color-scheme: light !important;
+}
+
+html.dark {
+  color-scheme: light !important;
+}
+
 /* Brand color override - Apple System Blue */
 :root {
   --vp-c-brand-1: #007AFF;

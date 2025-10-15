@@ -101,7 +101,11 @@ export default {
         async function downloadCurrentPage(format = 'md') {
           try {
             const path = window.location.pathname
-            let mdPath = path.endsWith('/') ? path + 'index.md' : path + '.md'
+            // Convert .html to .md for fetching the source
+            let mdPath = path.replace(/\.html$/, '.md')
+            if (mdPath.endsWith('/')) {
+              mdPath = mdPath + 'index.md'
+            }
 
             const response = await fetch(mdPath)
             if (!response.ok) throw new Error('File not found')
@@ -138,26 +142,39 @@ export default {
 
         // Convert Markdown to PDF
         async function downloadAsPDF(markdown, filename) {
-          // Load jsPDF from CDN
-          if (!window.jspdf) {
-            await loadScript('https://cdn.jsdelivr.net/npm/jspdf@2/dist/jspdf.umd.min.js')
+          try {
+            // Use html2pdf for better Unicode/emoji support
+            if (!window.html2pdf) {
+              await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js')
+            }
+
+            // Convert markdown to HTML (simple conversion)
+            const htmlContent = markdown
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/\n\n/g, '<br><br>')
+              .replace(/\n/g, '<br>')
+
+            const element = document.createElement('div')
+            element.innerHTML = htmlContent
+            element.style.padding = '20px'
+            element.style.fontFamily = 'Arial, sans-serif'
+            element.style.fontSize = '12px'
+            element.style.lineHeight = '1.6'
+
+            await window.html2pdf().from(element).save(`${filename}.pdf`)
+          } catch (error) {
+            console.error('PDF generation failed:', error)
+            alert('PDF generation failed. Please try downloading as Markdown instead.')
           }
-
-          const { jsPDF } = window.jspdf
-          const doc = new jsPDF()
-
-          // Simple text layout (no formatting)
-          const lines = doc.splitTextToSize(markdown, 180)
-          doc.text(lines, 10, 10)
-
-          doc.save(`${filename}.pdf`)
         }
 
         // Convert Markdown to Word
         async function downloadAsWord(markdown, filename) {
-          // Load docx from CDN
+          // Load docx from CDN (browser bundle)
           if (!window.docx) {
-            await loadScript('https://cdn.jsdelivr.net/npm/docx@8/build/index.js')
+            await loadScript('https://unpkg.com/docx@8.5.0/build/index.js')
           }
 
           const { Document, Packer, Paragraph, TextRun } = window.docx
