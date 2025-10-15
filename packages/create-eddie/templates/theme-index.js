@@ -31,6 +31,10 @@ export default {
         `
 
         btn.onclick = async () => {
+          console.log('📥 Download button clicked')
+          console.log('Current URL:', window.location.href)
+          console.log('Pathname:', window.location.pathname)
+
           // Show download menu
           const menu = document.createElement('div')
           menu.className = 'download-menu'
@@ -83,14 +87,19 @@ export default {
             item.onclick = async () => {
               menu.remove()
               const action = item.dataset.action
+              console.log('🔽 Menu item clicked:', action)
 
               if (action === 'current-md') {
+                console.log('🔽 Starting Markdown download')
                 await downloadCurrentPage('md')
               } else if (action === 'current-pdf') {
+                console.log('🔽 Starting PDF download')
                 await downloadCurrentPage('pdf')
               } else if (action === 'current-docx') {
+                console.log('🔽 Starting Word download')
                 await downloadCurrentPage('docx')
               } else if (action === 'all') {
+                console.log('🔽 Starting ZIP download (all pages)')
                 await downloadAllPages()
               }
             }
@@ -99,33 +108,64 @@ export default {
 
         // Download current page
         async function downloadCurrentPage(format = 'md') {
+          console.log(`📄 downloadCurrentPage called with format: ${format}`)
+
           try {
             const path = window.location.pathname
+            console.log('Current path:', path)
+
             // Convert .html to .md for fetching the source
             let mdPath = path.replace(/\.html$/, '.md')
             if (mdPath.endsWith('/')) {
               mdPath = mdPath + 'index.md'
             }
+            console.log('Converted mdPath:', mdPath)
+            console.log('About to fetch:', mdPath)
 
             const response = await fetch(mdPath)
-            if (!response.ok) throw new Error('File not found')
+            console.log('Fetch response status:', response.status)
+            console.log('Fetch response ok:', response.ok)
+            console.log('Fetch response URL:', response.url)
+
+            if (!response.ok) {
+              console.error('❌ Fetch failed:', response.status, response.statusText)
+              throw new Error('File not found')
+            }
 
             const markdown = await response.text()
-            const baseName = mdPath.split('/').pop().replace('.md', '')
+            console.log('✅ Markdown fetched successfully')
+            console.log('Markdown length:', markdown.length)
+            console.log('First 100 chars:', markdown.substring(0, 100))
+
+            // Extract title from markdown (first # heading) or fall back to path-based name
+            let baseName = mdPath.split('/').pop().replace('.md', '')
+            const titleMatch = markdown.match(/^#\s+(.+)$/m)
+            if (titleMatch) {
+              baseName = titleMatch[1].trim()
+                .replace(/[^a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\s-]/g, '') // Remove special chars
+                .replace(/\s+/g, '-') // Replace spaces with hyphens
+                .toLowerCase()
+              console.log('📝 Extracted title from markdown:', titleMatch[1])
+            }
+            console.log('Base filename:', baseName)
 
             if (format === 'md') {
-              // Markdown download
+              console.log('💾 Creating Markdown blob')
               const blob = new Blob([markdown], { type: 'text/markdown' })
               downloadFile(blob, `${baseName}.md`)
+              console.log('✅ Markdown download triggered')
             } else if (format === 'pdf') {
-              // PDF download
+              console.log('📑 Starting PDF generation')
               await downloadAsPDF(markdown, baseName)
             } else if (format === 'docx') {
-              // Word download
+              console.log('📘 Starting Word generation')
               await downloadAsWord(markdown, baseName)
             }
           } catch (error) {
-            console.error('Download failed:', error)
+            console.error('❌ Download failed:', error)
+            console.error('Error name:', error.name)
+            console.error('Error message:', error.message)
+            console.error('Error stack:', error.stack)
             alert('ダウンロードに失敗しました')
           }
         }
@@ -142,19 +182,30 @@ export default {
 
         // Convert Markdown to PDF
         async function downloadAsPDF(markdown, filename) {
+          console.log('📑 downloadAsPDF called')
+          console.log('Markdown length:', markdown.length)
+          console.log('Filename:', filename)
+
           try {
             // Use html2pdf for better Unicode/emoji support
             if (!window.html2pdf) {
+              console.log('⬇️ Loading html2pdf library...')
               await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js')
+              console.log('✅ html2pdf loaded')
+            } else {
+              console.log('✅ html2pdf already loaded')
             }
 
             // Convert markdown to HTML (simple conversion)
+            console.log('🔄 Converting markdown to HTML')
             const htmlContent = markdown
               .replace(/&/g, '&amp;')
               .replace(/</g, '&lt;')
               .replace(/>/g, '&gt;')
               .replace(/\n\n/g, '<br><br>')
               .replace(/\n/g, '<br>')
+
+            console.log('HTML content length:', htmlContent.length)
 
             const element = document.createElement('div')
             element.innerHTML = htmlContent
@@ -163,100 +214,163 @@ export default {
             element.style.fontSize = '12px'
             element.style.lineHeight = '1.6'
 
+            console.log('🖨️ Generating PDF...')
             await window.html2pdf().from(element).save(`${filename}.pdf`)
+            console.log('✅ PDF saved:', `${filename}.pdf`)
           } catch (error) {
-            console.error('PDF generation failed:', error)
+            console.error('❌ PDF generation failed:', error)
+            console.error('Error stack:', error.stack)
             alert('PDF generation failed. Please try downloading as Markdown instead.')
           }
         }
 
         // Convert Markdown to Word
         async function downloadAsWord(markdown, filename) {
-          // Load docx from CDN (browser bundle)
-          if (!window.docx) {
-            await loadScript('https://unpkg.com/docx@8.5.0/build/index.js')
-          }
+          console.log('📘 downloadAsWord called')
+          console.log('Markdown length:', markdown.length)
+          console.log('Filename:', filename)
 
-          const { Document, Packer, Paragraph, TextRun } = window.docx
+          try {
+            // Load docx from CDN (browser bundle - jsDelivr)
+            if (!window.docx) {
+              console.log('⬇️ Loading docx library...')
+              await loadScript('https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js')
+              console.log('✅ docx loaded')
+            } else {
+              console.log('✅ docx already loaded')
+            }
 
-          // Simple paragraph conversion
-          const paragraphs = markdown.split('\n\n').map(text =>
-            new Paragraph({
-              children: [new TextRun(text)]
+            console.log('📦 Extracting docx classes')
+            const { Document, Packer, Paragraph, TextRun } = window.docx
+            console.log('Document type:', typeof Document)
+            console.log('Packer type:', typeof Packer)
+            console.log('Paragraph type:', typeof Paragraph)
+            console.log('TextRun type:', typeof TextRun)
+
+            // Simple paragraph conversion
+            console.log('🔄 Converting markdown to paragraphs')
+            const paragraphs = markdown.split('\n\n').map(text =>
+              new Paragraph({
+                children: [new TextRun(text)]
+              })
+            )
+            console.log('Paragraph count:', paragraphs.length)
+
+            console.log('📝 Creating document')
+            const doc = new Document({
+              sections: [{ children: paragraphs }]
             })
-          )
 
-          const doc = new Document({
-            sections: [{ children: paragraphs }]
-          })
+            console.log('💾 Packing to blob')
+            const blob = await Packer.toBlob(doc)
+            console.log('Blob size:', blob.size)
 
-          const blob = await Packer.toBlob(doc)
-          downloadFile(blob, `${filename}.docx`)
+            downloadFile(blob, `${filename}.docx`)
+            console.log('✅ Word saved:', `${filename}.docx`)
+          } catch (error) {
+            console.error('❌ Word generation failed:', error)
+            console.error('Error stack:', error.stack)
+            alert('Word generation failed. Please try downloading as Markdown instead.')
+          }
         }
 
         // Load external script
         function loadScript(src) {
+          console.log('📥 loadScript:', src)
           return new Promise((resolve, reject) => {
             const script = document.createElement('script')
             script.src = src
-            script.onload = resolve
-            script.onerror = reject
+            script.onload = () => {
+              console.log('✅ Script loaded successfully:', src)
+              resolve()
+            }
+            script.onerror = (error) => {
+              console.error('❌ Script load failed:', src, error)
+              reject(error)
+            }
             document.head.appendChild(script)
           })
         }
 
         // Download all pages as ZIP
         async function downloadAllPages() {
+          console.log('📦 downloadAllPages called')
+
           try {
             // Load JSZip from CDN
             if (!window.JSZip) {
-              await new Promise((resolve, reject) => {
-                const script = document.createElement('script')
-                script.src = 'https://cdn.jsdelivr.net/npm/jszip@3/dist/jszip.min.js'
-                script.onload = resolve
-                script.onerror = reject
-                document.head.appendChild(script)
-              })
+              console.log('⬇️ Loading JSZip library...')
+              await loadScript('https://cdn.jsdelivr.net/npm/jszip@3/dist/jszip.min.js')
+              console.log('✅ JSZip loaded')
+            } else {
+              console.log('✅ JSZip already loaded')
             }
 
             const zip = new window.JSZip()
+            console.log('📦 ZIP instance created')
 
             // Get all markdown links from sidebar
             const links = Array.from(document.querySelectorAll('.VPSidebar a'))
               .map(a => a.getAttribute('href'))
               .filter(href => href && !href.startsWith('http'))
-              .map(href => href.endsWith('/') ? href + 'index.md' : href + '.md')
+              .map(href => {
+                // Convert .html to .md (replace, not append)
+                if (href.endsWith('.html')) {
+                  return href.replace(/\.html$/, '.md')
+                } else if (href.endsWith('/')) {
+                  return href + 'index.md'
+                } else {
+                  return href + '.md'
+                }
+              })
+
+            console.log('Found sidebar links:', links.length)
+            console.log('Links:', links)
 
             // Add current page if not in list
             const currentPath = window.location.pathname
             const currentMd = currentPath.endsWith('/') ? currentPath + 'index.md' : currentPath + '.md'
             if (!links.includes(currentMd)) {
               links.push(currentMd)
+              console.log('Added current page:', currentMd)
             }
+
+            console.log('Total links to fetch:', links.length)
 
             // Fetch all markdown files
             let successCount = 0
             for (const mdPath of links) {
               try {
+                console.log(`Fetching: ${mdPath}`)
                 const response = await fetch(mdPath)
+                console.log(`Response for ${mdPath}: ${response.status}`)
                 if (response.ok) {
                   const content = await response.text()
                   const fileName = mdPath.replace(/^\//, '').replace(/\//g, '_')
                   zip.file(fileName, content)
                   successCount++
+                  console.log(`✅ Added to ZIP: ${fileName}`)
+                } else {
+                  console.warn(`❌ Failed to fetch ${mdPath}: ${response.status}`)
                 }
               } catch (e) {
-                console.warn(`Failed to fetch ${mdPath}:`, e)
+                console.warn(`❌ Exception fetching ${mdPath}:`, e)
               }
             }
 
+            console.log(`Total files successfully fetched: ${successCount}/${links.length}`)
+
             if (successCount === 0) {
+              console.error('❌ No files could be downloaded')
               alert('ダウンロード可能なファイルが見つかりませんでした')
               return
             }
 
             // Generate ZIP
+            console.log('📦 Generating ZIP file...')
             const zipBlob = await zip.generateAsync({ type: 'blob' })
+            console.log('ZIP blob size:', zipBlob.size)
+
             const url = URL.createObjectURL(zipBlob)
             const a = document.createElement('a')
             a.href = url
@@ -266,7 +380,8 @@ export default {
 
             console.log(`✅ Downloaded ${successCount} files as ZIP`)
           } catch (error) {
-            console.error('ZIP download failed:', error)
+            console.error('❌ ZIP download failed:', error)
+            console.error('Error stack:', error.stack)
             alert('ZIPダウンロードに失敗しました')
           }
         }
