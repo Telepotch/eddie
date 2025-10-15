@@ -4,6 +4,7 @@ export default defineConfig({
   title: 'PROJECT_NAME',
   description: 'Documentation powered by Eddie',
 
+  appearance: false, // Disable dark mode completely
   ignoreDeadLinks: true,
 
   markdown: {
