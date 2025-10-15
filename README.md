@@ -2,6 +2,8 @@
 
 AI-powered documentation framework for Obsidian + Claude Code
 
+**Version:** 1.3.4
+
 ## What is Eddie?
 
 Eddie is a documentation workflow system that combines:
@@ -9,7 +11,21 @@ Eddie is a documentation workflow system that combines:
 - 🤖 **Claude Code** for AI-assisted writing
 - 🔍 **Vector Search** for semantic document search
 - 🌐 **VitePress** for static site generation
+- 📥 **Download Features** - Export as Markdown, PDF, Word, or ZIP
 - 🚀 **Vercel** for automatic deployment
+
+## ✨ Features
+
+- **📥 Document Downloads** - Export any page in multiple formats
+  - Markdown (.md) - Original source format
+  - PDF (.pdf) - Print-ready with Unicode support
+  - Word (.docx) - Editable documents
+  - ZIP - Download entire site at once
+- **🎯 Smart Filenames** - Automatically extracted from `# Document Title`
+- **🎨 Clean UI** - Apple System Blue theme with light mode
+- **🐛 Debug Console** - Detailed logging for troubleshooting
+- **🔗 Wikilinks** - Full Obsidian `[[wikilink]]` support
+- **🚀 Production Ready** - buildEnd hook enables downloads on Vercel
 
 ## Quick Start
 
@@ -39,6 +55,16 @@ code .
 4.publish📚 → Write final documents → Web
 archive🗑️   → Archive unused materials
 ```
+
+## Documentation
+
+📚 **[View Full Documentation](https://eddie-docs.vercel.app)**
+
+- [Installation Guide](https://eddie-docs.vercel.app/installation.html)
+- [Getting Started](https://eddie-docs.vercel.app/getting-started.html)
+- [Download Features](https://eddie-docs.vercel.app/download-features.html)
+- [Vector Search](https://eddie-docs.vercel.app/vector-search.html)
+- [Deploy to Vercel](https://eddie-docs.vercel.app/deployment.html)
 
 ## Packages
 
