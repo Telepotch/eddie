@@ -231,41 +231,41 @@ export default {
           console.log('Filename:', filename)
 
           try {
-            // Load docx from CDN (browser bundle - jsDelivr)
-            if (!window.docx) {
-              console.log('⬇️ Loading docx library...')
-              await loadScript('https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js')
-              console.log('✅ docx loaded')
+            // Load html-docx-js from CDN (simpler, browser-friendly)
+            if (!window.htmlDocx) {
+              console.log('⬇️ Loading html-docx-js library...')
+              await loadScript('https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js')
+              console.log('✅ html-docx-js loaded')
             } else {
-              console.log('✅ docx already loaded')
+              console.log('✅ html-docx-js already loaded')
             }
 
-            console.log('📦 Extracting docx classes')
-            const { Document, Packer, Paragraph, TextRun } = window.docx
-            console.log('Document type:', typeof Document)
-            console.log('Packer type:', typeof Packer)
-            console.log('Paragraph type:', typeof Paragraph)
-            console.log('TextRun type:', typeof TextRun)
+            // Convert markdown to HTML (simple conversion)
+            console.log('🔄 Converting markdown to HTML')
+            const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.6; }
+    h1 { font-size: 18pt; font-weight: bold; margin-top: 20pt; }
+    h2 { font-size: 14pt; font-weight: bold; margin-top: 15pt; }
+    p { margin: 10pt 0; }
+  </style>
+</head>
+<body>
+  <pre style="white-space: pre-wrap; font-family: Arial;">${markdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+</body>
+</html>
+`
+            console.log('HTML content length:', htmlContent.length)
 
-            // Simple paragraph conversion
-            console.log('🔄 Converting markdown to paragraphs')
-            const paragraphs = markdown.split('\n\n').map(text =>
-              new Paragraph({
-                children: [new TextRun(text)]
-              })
-            )
-            console.log('Paragraph count:', paragraphs.length)
+            console.log('📝 Converting HTML to Word document')
+            const converted = window.htmlDocx.asBlob(htmlContent)
+            console.log('Word blob size:', converted.size)
 
-            console.log('📝 Creating document')
-            const doc = new Document({
-              sections: [{ children: paragraphs }]
-            })
-
-            console.log('💾 Packing to blob')
-            const blob = await Packer.toBlob(doc)
-            console.log('Blob size:', blob.size)
-
-            downloadFile(blob, `${filename}.docx`)
+            downloadFile(converted, `${filename}.docx`)
             console.log('✅ Word saved:', `${filename}.docx`)
           } catch (error) {
             console.error('❌ Word generation failed:', error)
