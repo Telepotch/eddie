@@ -188,10 +188,11 @@ export default {
 
           try {
             // Load marked.js for proper Markdown parsing
-            if (!window.marked) {
+            if (typeof marked === 'undefined') {
               console.log('⬇️ Loading marked.js library...')
-              await loadScript('https://cdn.jsdelivr.net/npm/marked@14.1.3/lib/marked.umd.min.js')
+              await loadScript('https://cdn.jsdelivr.net/npm/marked@16.3.0/lib/marked.umd.js')
               console.log('✅ marked.js loaded')
+              console.log('marked object:', typeof marked)
             } else {
               console.log('✅ marked.js already loaded')
             }
@@ -207,7 +208,8 @@ export default {
 
             // Convert markdown to HTML using marked (preserves structure)
             console.log('🔄 Converting markdown to HTML with marked.js')
-            const htmlContent = window.marked.parse(markdown)
+            console.log('Calling marked.parse()...')
+            const htmlContent = marked.parse(markdown)
             console.log('HTML content length:', htmlContent.length)
 
             // Create styled container
@@ -252,10 +254,11 @@ export default {
 
           try {
             // Load marked.js for proper Markdown parsing
-            if (!window.marked) {
+            if (typeof marked === 'undefined') {
               console.log('⬇️ Loading marked.js library...')
-              await loadScript('https://cdn.jsdelivr.net/npm/marked@14.1.3/lib/marked.umd.min.js')
+              await loadScript('https://cdn.jsdelivr.net/npm/marked@16.3.0/lib/marked.umd.js')
               console.log('✅ marked.js loaded')
+              console.log('marked object:', typeof marked)
             } else {
               console.log('✅ marked.js already loaded')
             }
@@ -271,7 +274,8 @@ export default {
 
             // Convert markdown to HTML using marked (preserves heading structure)
             console.log('🔄 Converting markdown to HTML with marked.js')
-            const bodyContent = window.marked.parse(markdown)
+            console.log('Calling marked.parse()...')
+            const bodyContent = marked.parse(markdown)
             console.log('Parsed HTML length:', bodyContent.length)
 
             // Create full HTML document with styles for Word
