@@ -91,7 +91,8 @@ html.dark {
   .download-button {
     width: 36px;
     padding: 0;
-    margin-left: 8px !important;
+    margin-left: 4px !important;  /* 8px → 4px: 検索アイコンに近づける */
+    margin-right: 12px !important;  /* 右端に余裕を持たせる */
   }
 
   .download-text {
@@ -100,12 +101,24 @@ html.dark {
 
   /* Force navbar items to be close together */
   .VPNavBar .content-body .content {
-    gap: 8px !important;
+    gap: 4px !important;  /* 8px → 4px: 間隔を狭める */
+    margin-left: auto !important;  /* 右寄せ維持 */
+  }
+
+  /* 検索アイコンの右マージンを削除 */
+  .VPNavBarSearch {
+    margin-right: 0 !important;
   }
 
   /* Remove any spacers between search and download */
   .VPNavBarSearch + * {
     margin-left: 0 !important;
+  }
+
+  /* 検索アイコンもコンパクトに */
+  .VPNavBarSearch .DocSearch-Button {
+    width: 36px !important;
+    padding: 0 8px !important;
   }
 }
 
