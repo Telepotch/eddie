@@ -18,10 +18,11 @@ Eddie is a documentation workflow system that combines:
 
 - **📥 Document Downloads** - Export any page in multiple formats
   - Markdown (.md) - Original source format
-  - PDF (.pdf) - Print-ready with Unicode support
-  - Word (.docx) - Editable documents
+  - PDF (.pdf) - Professional print layout with 20mm margins, smart page breaks
+  - Word (.docx) - Editable with proper heading styles (見出し1/2/3)
   - ZIP - Download entire site at once
 - **🎯 Smart Filenames** - Automatically extracted from `# Document Title`
+- **📐 Structured Headings** - Markdown `#` → PDF H1 / Word "Heading 1" style
 - **🎨 Clean UI** - Apple System Blue theme with light mode
 - **🐛 Debug Console** - Detailed logging for troubleshooting
 - **🔗 Wikilinks** - Full Obsidian `[[wikilink]]` support
