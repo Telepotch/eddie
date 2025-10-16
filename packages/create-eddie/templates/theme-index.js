@@ -114,11 +114,21 @@ export default {
             const path = window.location.pathname
             console.log('Current path:', path)
 
-            // Convert .html to .md for fetching the source
-            let mdPath = path.replace(/\.html$/, '.md')
-            if (mdPath.endsWith('/')) {
-              mdPath = mdPath + 'index.md'
+            // Convert path to .md file path
+            let mdPath = path
+              .replace(/\.html$/, '')  // Remove .html if present
+              .replace(/\/$/, '')      // Remove trailing / if present
+
+            // Add .md extension if not present
+            if (!mdPath.endsWith('.md')) {
+              mdPath = mdPath + '.md'
             }
+
+            // Handle root path
+            if (mdPath === '.md') {
+              mdPath = '/index.md'
+            }
+
             console.log('Converted mdPath:', mdPath)
             console.log('About to fetch:', mdPath)
 
