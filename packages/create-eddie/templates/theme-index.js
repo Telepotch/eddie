@@ -225,29 +225,151 @@ export default {
             // Create styled container
             const element = document.createElement('div')
             element.innerHTML = htmlContent
-            element.style.padding = '20px'
             element.style.fontFamily = 'Arial, sans-serif'
-            element.style.fontSize = '12px'
+            element.style.fontSize = '11pt'
             element.style.lineHeight = '1.6'
+            element.style.color = '#333'
 
-            // Apply heading styles
+            // Apply heading styles with page break control
             const style = document.createElement('style')
             style.textContent = `
-              h1 { font-size: 24px; font-weight: bold; margin-top: 20px; margin-bottom: 12px; }
-              h2 { font-size: 18px; font-weight: bold; margin-top: 16px; margin-bottom: 10px; }
-              h3 { font-size: 14px; font-weight: bold; margin-top: 14px; margin-bottom: 8px; }
-              h4 { font-size: 12px; font-weight: bold; margin-top: 12px; margin-bottom: 6px; }
-              p { margin: 8px 0; }
-              code { background-color: #f4f4f4; padding: 2px 4px; font-family: monospace; }
-              pre { background-color: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; }
-              blockquote { border-left: 4px solid #ddd; padding-left: 16px; margin: 8px 0; color: #666; }
-              ul, ol { margin: 8px 0; padding-left: 24px; }
-              li { margin: 4px 0; }
+              @page {
+                margin: 20mm;
+              }
+
+              body {
+                font-size: 11pt;
+                line-height: 1.6;
+              }
+
+              h1 {
+                font-size: 20pt;
+                font-weight: bold;
+                margin-top: 24pt;
+                margin-bottom: 12pt;
+                page-break-before: always;
+                page-break-after: avoid;
+              }
+
+              h1:first-child {
+                page-break-before: avoid;
+              }
+
+              h2 {
+                font-size: 16pt;
+                font-weight: bold;
+                margin-top: 18pt;
+                margin-bottom: 10pt;
+                page-break-after: avoid;
+              }
+
+              h3 {
+                font-size: 13pt;
+                font-weight: bold;
+                margin-top: 14pt;
+                margin-bottom: 8pt;
+                page-break-after: avoid;
+              }
+
+              h4 {
+                font-size: 11pt;
+                font-weight: bold;
+                margin-top: 12pt;
+                margin-bottom: 6pt;
+                page-break-after: avoid;
+              }
+
+              p {
+                margin: 10pt 0;
+                orphans: 3;
+                widows: 3;
+              }
+
+              code {
+                background-color: #f5f5f5;
+                padding: 2pt 4pt;
+                font-family: 'Courier New', monospace;
+                font-size: 10pt;
+              }
+
+              pre {
+                background-color: #f5f5f5;
+                padding: 12pt;
+                border: 1pt solid #ddd;
+                font-family: 'Courier New', monospace;
+                font-size: 9pt;
+                line-height: 1.4;
+                page-break-inside: avoid;
+                overflow-x: auto;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+              }
+
+              blockquote {
+                border-left: 3pt solid #ccc;
+                padding-left: 12pt;
+                margin: 12pt 0;
+                color: #666;
+                font-style: italic;
+                page-break-inside: avoid;
+              }
+
+              ul, ol {
+                margin: 10pt 0;
+                padding-left: 24pt;
+              }
+
+              li {
+                margin: 6pt 0;
+              }
+
+              table {
+                border-collapse: collapse;
+                margin: 12pt 0;
+                page-break-inside: avoid;
+              }
+
+              th, td {
+                border: 1pt solid #ddd;
+                padding: 8pt;
+                text-align: left;
+              }
+
+              th {
+                background-color: #f5f5f5;
+                font-weight: bold;
+              }
+
+              img {
+                max-width: 100%;
+                page-break-inside: avoid;
+              }
             `
             element.appendChild(style)
 
-            console.log('🖨️ Generating PDF with structured headings...')
-            await window.html2pdf().from(element).save(`${filename}.pdf`)
+            console.log('🖨️ Generating PDF with proper margins and page breaks...')
+            const pdfOptions = {
+              margin: [20, 20, 20, 20],  // top, right, bottom, left (mm)
+              filename: `${filename}.pdf`,
+              image: { type: 'jpeg', quality: 0.98 },
+              html2canvas: {
+                scale: 2,
+                useCORS: true,
+                letterRendering: true
+              },
+              jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait'
+              },
+              pagebreak: {
+                mode: ['avoid-all', 'css', 'legacy'],
+                before: 'h1',
+                after: ['img', 'pre', 'table']
+              }
+            }
+
+            await window.html2pdf().set(pdfOptions).from(element).save()
             console.log('✅ PDF saved:', `${filename}.pdf`)
           } catch (error) {
             console.error('❌ PDF generation failed:', error)
