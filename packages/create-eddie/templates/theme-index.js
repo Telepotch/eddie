@@ -363,9 +363,7 @@ export default {
                 orientation: 'portrait'
               },
               pagebreak: {
-                mode: ['avoid-all', 'css', 'legacy'],
-                before: 'h1',
-                after: ['img', 'pre', 'table']
+                mode: 'css'  // Use CSS page-break properties only (avoid-all causes blank pages)
               }
             }
 
