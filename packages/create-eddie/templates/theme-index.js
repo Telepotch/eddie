@@ -187,7 +187,16 @@ export default {
           console.log('Filename:', filename)
 
           try {
-            // Use html2pdf for better Unicode/emoji support
+            // Load marked.js for proper Markdown parsing
+            if (!window.marked) {
+              console.log('⬇️ Loading marked.js library...')
+              await loadScript('https://cdn.jsdelivr.net/npm/marked@14.1.3/lib/marked.umd.min.js')
+              console.log('✅ marked.js loaded')
+            } else {
+              console.log('✅ marked.js already loaded')
+            }
+
+            // Load html2pdf for PDF generation
             if (!window.html2pdf) {
               console.log('⬇️ Loading html2pdf library...')
               await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js')
@@ -196,17 +205,12 @@ export default {
               console.log('✅ html2pdf already loaded')
             }
 
-            // Convert markdown to HTML (simple conversion)
-            console.log('🔄 Converting markdown to HTML')
-            const htmlContent = markdown
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/\n\n/g, '<br><br>')
-              .replace(/\n/g, '<br>')
-
+            // Convert markdown to HTML using marked (preserves structure)
+            console.log('🔄 Converting markdown to HTML with marked.js')
+            const htmlContent = window.marked.parse(markdown)
             console.log('HTML content length:', htmlContent.length)
 
+            // Create styled container
             const element = document.createElement('div')
             element.innerHTML = htmlContent
             element.style.padding = '20px'
@@ -214,7 +218,23 @@ export default {
             element.style.fontSize = '12px'
             element.style.lineHeight = '1.6'
 
-            console.log('🖨️ Generating PDF...')
+            // Apply heading styles
+            const style = document.createElement('style')
+            style.textContent = `
+              h1 { font-size: 24px; font-weight: bold; margin-top: 20px; margin-bottom: 12px; }
+              h2 { font-size: 18px; font-weight: bold; margin-top: 16px; margin-bottom: 10px; }
+              h3 { font-size: 14px; font-weight: bold; margin-top: 14px; margin-bottom: 8px; }
+              h4 { font-size: 12px; font-weight: bold; margin-top: 12px; margin-bottom: 6px; }
+              p { margin: 8px 0; }
+              code { background-color: #f4f4f4; padding: 2px 4px; font-family: monospace; }
+              pre { background-color: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; }
+              blockquote { border-left: 4px solid #ddd; padding-left: 16px; margin: 8px 0; color: #666; }
+              ul, ol { margin: 8px 0; padding-left: 24px; }
+              li { margin: 4px 0; }
+            `
+            element.appendChild(style)
+
+            console.log('🖨️ Generating PDF with structured headings...')
             await window.html2pdf().from(element).save(`${filename}.pdf`)
             console.log('✅ PDF saved:', `${filename}.pdf`)
           } catch (error) {
@@ -231,6 +251,15 @@ export default {
           console.log('Filename:', filename)
 
           try {
+            // Load marked.js for proper Markdown parsing
+            if (!window.marked) {
+              console.log('⬇️ Loading marked.js library...')
+              await loadScript('https://cdn.jsdelivr.net/npm/marked@14.1.3/lib/marked.umd.min.js')
+              console.log('✅ marked.js loaded')
+            } else {
+              console.log('✅ marked.js already loaded')
+            }
+
             // Load html-docx-js from CDN (simpler, browser-friendly)
             if (!window.htmlDocx) {
               console.log('⬇️ Loading html-docx-js library...')
@@ -240,8 +269,13 @@ export default {
               console.log('✅ html-docx-js already loaded')
             }
 
-            // Convert markdown to HTML (simple conversion)
-            console.log('🔄 Converting markdown to HTML')
+            // Convert markdown to HTML using marked (preserves heading structure)
+            console.log('🔄 Converting markdown to HTML with marked.js')
+            const bodyContent = window.marked.parse(markdown)
+            console.log('Parsed HTML length:', bodyContent.length)
+
+            // Create full HTML document with styles for Word
+            // html-docx-js will convert <h1> to Word "Heading 1" style, <h2> to "Heading 2", etc.
             const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -249,24 +283,33 @@ export default {
   <meta charset="UTF-8">
   <style>
     body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.6; }
-    h1 { font-size: 18pt; font-weight: bold; margin-top: 20pt; }
-    h2 { font-size: 14pt; font-weight: bold; margin-top: 15pt; }
+    h1 { font-size: 20pt; font-weight: bold; margin-top: 24pt; margin-bottom: 12pt; }
+    h2 { font-size: 16pt; font-weight: bold; margin-top: 18pt; margin-bottom: 10pt; }
+    h3 { font-size: 14pt; font-weight: bold; margin-top: 14pt; margin-bottom: 8pt; }
+    h4 { font-size: 12pt; font-weight: bold; margin-top: 12pt; margin-bottom: 6pt; }
     p { margin: 10pt 0; }
+    code { background-color: #f4f4f4; padding: 2pt 4pt; font-family: Consolas, monospace; }
+    pre { background-color: #f4f4f4; padding: 10pt; border: 1pt solid #ddd; font-family: Consolas, monospace; }
+    blockquote { border-left: 4pt solid #ddd; padding-left: 12pt; margin: 10pt 0; color: #666; }
+    ul, ol { margin: 10pt 0; padding-left: 24pt; }
+    li { margin: 6pt 0; }
+    table { border-collapse: collapse; margin: 10pt 0; }
+    th, td { border: 1pt solid #ddd; padding: 8pt; }
   </style>
 </head>
 <body>
-  <pre style="white-space: pre-wrap; font-family: Arial;">${markdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+${bodyContent}
 </body>
 </html>
 `
-            console.log('HTML content length:', htmlContent.length)
+            console.log('Full HTML document length:', htmlContent.length)
 
-            console.log('📝 Converting HTML to Word document')
+            console.log('📝 Converting HTML to Word document (h1→見出し1, h2→見出し2)')
             const converted = window.htmlDocx.asBlob(htmlContent)
             console.log('Word blob size:', converted.size)
 
             downloadFile(converted, `${filename}.docx`)
-            console.log('✅ Word saved:', `${filename}.docx`)
+            console.log('✅ Word saved with structured headings:', `${filename}.docx`)
           } catch (error) {
             console.error('❌ Word generation failed:', error)
             console.error('Error stack:', error.stack)
