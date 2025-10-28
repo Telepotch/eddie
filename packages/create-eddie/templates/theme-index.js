@@ -8,6 +8,10 @@ export default {
     onMounted(() => {
       console.log('🔧 Eddie theme loaded!')
 
+      // Force light mode (override VitePress dark mode detection)
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('vitepress-theme-appearance', 'light')
+
       // Insert download button next to search button
       const insertDownloadButton = () => {
         if (document.querySelector('.download-button')) return
