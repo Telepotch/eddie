@@ -144,6 +144,21 @@ function createEddieProject(projectName) {
     path.join(projectDir, '.system/claude/EDDIE_GUIDE.md')
   );
 
+  // Copy prompt templates
+  console.log('📝 Creating prompt templates...');
+  const promptsDir = path.join(__dirname, 'templates/prompts');
+  if (fs.existsSync(promptsDir)) {
+    const promptFiles = fs.readdirSync(promptsDir);
+    promptFiles.forEach(file => {
+      if (file.endsWith('.md')) {
+        fs.copyFileSync(
+          path.join(promptsDir, file),
+          path.join(projectDir, 'edit/0.prompt🤖', file)
+        );
+      }
+    });
+  }
+
   // Create VitePress config symlink
   const configSymlink = path.join(projectDir, 'edit/4.publish📚/.vitepress/config.js');
   const configTarget = '../../../.system/site-config/config.js';
