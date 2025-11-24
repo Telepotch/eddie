@@ -121,6 +121,26 @@ export default defineConfig({
     }
   },
 
+  // Vite configuration for asset handling
+  vite: {
+    assetsInclude: [
+      '**/*.JPG',      // Uppercase extensions
+      '**/*.jpg',
+      '**/*.jpeg',
+      '**/*.JPEG',
+      '**/*.png',
+      '**/*.PNG',
+      '**/*.gif',
+      '**/*.GIF',
+      '**/*.webp',
+      '**/*.WEBP',
+      '**/*.svg',
+      '**/*.SVG',
+      '**/images/**',  // images directory
+      '**/assets/**'   // assets directory
+    ]
+  },
+
   head: [
     // Load mermaid from CDN
     ['script', { src: 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js' }],
